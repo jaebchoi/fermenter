@@ -48,6 +48,7 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
     private MavenSession session;
 
     private boolean hideManualActions = false;
+    private boolean displayMessageKeys = false;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -71,8 +72,12 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
     public void afterSessionEnd(MavenSession session) {
         this.session = session;
         String rawHideManualActions = session.getUserProperties().getProperty("fermenter.hide.manual.actions");
+        String displayMessageKeys = session.getUserProperties().getProperty("fermenter.display.message.keys");
         if (rawHideManualActions != null) {
             this.hideManualActions = Boolean.parseBoolean(rawHideManualActions);
+        }
+        if(displayMessageKeys != null) {
+            this.displayMessageKeys = Boolean.parseBoolean(displayMessageKeys);
         }
 
         try {
@@ -100,7 +105,7 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
      * Writes any encountered notifications to a file for use later.  These are written to the path defined by
      * NOTIFICATION_DIRECTORY_PATH.
      */
-    public void recordNotifications(MavenProject project) {
+    public void recordNotifications(MavenProject project, List<String> suppressedMessages) {
         int manualActionCount = 0;
         File projectParentFile = new File(project.getBasedir(), NOTIFICATION_DIRECTORY_PATH);
         Map<String, Map<String, Notification>> collectorNotifications = NotificationCollector.getNotifications();
@@ -109,19 +114,21 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
             Map<String, Notification> notificationsForFile = entry.getValue();
             int i = 0;
             for (Map.Entry<String, Notification> subMapEntry : notificationsForFile.entrySet()) {
-                File notificationParentFile = getNotificationParentFile(projectParentFile, subMapEntry.getValue());
-                File outputFile = new File(notificationParentFile, FilenameUtils.getName(fileName + "-" + UUID.randomUUID().toString() + "." + JSON));
-                try {
-                    Notification notification = subMapEntry.getValue();
-                    FileUtils.forceMkdir(notificationParentFile);
-                    FileUtils.write(outputFile, getNotificationJson(notification), Charset.defaultCharset());
-                    if (notification instanceof VelocityNotification) {
-                        VelocityNotification velocityNotification = (VelocityNotification) notification;
-                        velocityNotification.writeExternalVelocityContextProperties(project.getBasedir());
+                Notification notification = subMapEntry.getValue();
+                if(suppressedMessages == null || !suppressedMessages.contains(subMapEntry.getValue().getKey())) {
+                    File notificationParentFile = getNotificationParentFile(projectParentFile, subMapEntry.getValue());
+                    File outputFile = new File(notificationParentFile, FilenameUtils.getName(fileName + "-" + UUID.randomUUID().toString() + "." + JSON));
+                    try {
+                        FileUtils.forceMkdir(notificationParentFile);
+                        FileUtils.write(outputFile, getNotificationJson(notification), Charset.defaultCharset());
+                        if (notification instanceof VelocityNotification) {
+                            VelocityNotification velocityNotification = (VelocityNotification) notification;
+                            velocityNotification.writeExternalVelocityContextProperties(project.getBasedir());
+                        }
+                        manualActionCount++;
+                    } catch (IOException e) {
+                        throw new GenerationException("Could not write manual action notification to disk!", e);
                     }
-                    manualActionCount++;
-                } catch (IOException e) {
-                    throw new GenerationException("Could not write manual action notification to disk!", e);
                 }
             }
 
@@ -182,7 +189,12 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
                 } else {
                     for (Notification notification : entry.getValue()) {
                         denoteNewManualAction(i);
-                        logger.warn(notification.getNotificationAsString());
+
+                        if(displayMessageKeys) {
+                            logger.warn("Message Key: " + key + "\n" + notification.getNotificationAsString());
+                        } else {
+                            logger.warn(notification.getNotificationAsString());
+                        }
                     }
                 }
 
@@ -190,6 +202,7 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
             }
 
             logger.warn("To disable these messages, please use -Dfermenter.hide.manual.actions=true");
+            logger.warn("To disable specific messages, please add their message keys to the suppressedMessages list. See the Fermenter docs for more info: https://github.com/TechnologyBrewery/fermenter");
 
         }
     }
@@ -262,11 +275,15 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
         }
     }
 
-    private static void outputGroupNotification(Map.Entry<String, List<Notification>> entry, Properties groupProperties, String groupName) throws IOException {
+    private void outputGroupNotification(Map.Entry<String, List<Notification>> entry, Properties groupProperties, String groupName) throws IOException {
         String templateName = "templates/notifications/group-" + groupName + ".vm";
         Set<String> groupItems = new HashSet<>();
         for (Notification notification : entry.getValue()) {
-            groupItems.add(notification.getNotificationAsString());
+            if(displayMessageKeys) {
+                logger.warn("Message Key: " + notification.getKey() + "\n" + notification.getNotificationAsString());
+            } else {
+                logger.warn(notification.getNotificationAsString());
+            }
         }
 
         VelocityNotification groupNotification = new VelocityNotification(groupName, groupName, groupItems, templateName);

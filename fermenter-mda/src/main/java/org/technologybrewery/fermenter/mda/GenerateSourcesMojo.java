@@ -84,6 +84,9 @@ public class GenerateSourcesMojo extends AbstractMojo {
     @Parameter
     private String basePackage;
 
+    @Parameter
+    private List<String> suppressedMessages;
+
     /**
      * Captures the target programming language in which source code artifacts will be generated. This
      * configuration drives the automatic configuration of {@link #mainSourceRoot}, {@link #generatedSourceRoot},
@@ -194,7 +197,7 @@ public class GenerateSourcesMojo extends AbstractMojo {
 
         // store notifications in the target directory between plugin invocations so they can be output
         // at the end of the build:
-        notificationService.recordNotifications(getProject());
+        notificationService.recordNotifications(getProject(), suppressedMessages);
 
     }
 

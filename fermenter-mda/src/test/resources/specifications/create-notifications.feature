@@ -23,6 +23,11 @@ Feature: Support the ability to create notifications that can be output at the e
             | girl               | lennon            |
             | we-can-work-it-out | lennon, mccartney |
 
+    Scenario: Display unique IDs for notifications
+        Given a notification key to suppress
+        When the MDA plugin runs
+        Then the notification indicated by the key is not shown
+
     @manual
     Scenario Outline: when multiple notification with the same key are read across modules, only one is emitted
         Given a configuration that triggers multiple notifications with the "<key>" in different modules

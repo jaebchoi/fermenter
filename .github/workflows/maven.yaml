@@ -11,7 +11,7 @@ name: Java CI with Maven
 on:
     push:
         branches: [ "dev" ]
-    pull_request:
+    pull_request_target:
         branches: [ "dev" ]
 
 jobs:
@@ -32,4 +32,4 @@ jobs:
 
             # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
             - name: Update dependency graph
-              uses: advanced-security/maven-dependency-submission-action@v3
+              uses: advanced-security/maven-dependency-submission-action@v4

@@ -203,6 +203,23 @@ Allows the addition of local types within you current project.
 
 **Default:** `${project.basedir}/src/main/resources/types.json`
 
+### `suppressedMessages`
+Allows you to define a list of manual action notifications to ignore. To suppress messages, add their message key
+to the list of suppressed messages like in this example.
+```
+<configuration>
+  <suppressedMessages>
+    <message>example_message_key</message>
+  </suppressedMessages>
+</configuration>
+```
+To get the key values of the messages produced by a build, run the fermenter-mda
+plugin with the "fermenter.display.message.keys" set to true: ```mvn generate-sources -Dfermenter.display.message.keys=true```
+
+**Required:** false
+
+**Default:** none
+
 ## Creating and specifying a `profile`
 Profiles represent a collection of targets that will be used to generate source in a given execution of the 
 `fermenter-mda` plugin. Targets will be discussed in more detail in the next section, but in short they control how a 

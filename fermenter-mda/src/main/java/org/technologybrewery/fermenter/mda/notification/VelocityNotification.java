@@ -144,7 +144,7 @@ public class VelocityNotification extends AbstractNotification {
      */
     @Override
     public String getNotificationAsString() {
-        String notificationString;
+        String notificationString = "";
         if (StringUtils.isBlank(velocityTemplate)) {
             throw new GenerationException("Template location MUST be provided!");
         }
@@ -159,7 +159,7 @@ public class VelocityNotification extends AbstractNotification {
             try (Writer writer = new StringWriter()) {
                 template.merge(context, writer);
 
-                notificationString = writer.toString();
+                notificationString += writer.toString();
 
             } catch (IOException e) {
                 throw new GenerationException("Could not process notification of manual action!", e);

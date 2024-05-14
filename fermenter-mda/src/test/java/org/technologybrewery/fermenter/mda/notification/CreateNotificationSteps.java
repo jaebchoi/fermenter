@@ -11,14 +11,12 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.junit.Assert;
+import org.technologybrewery.fermenter.mda.GenerateSourcesMojo;
 import org.technologybrewery.fermenter.mda.MojoTestCaseWrapper;
-import org.technologybrewery.fermenter.mda.generator.AbstractGenerator;
-import org.technologybrewery.fermenter.mda.generator.GenerationContext;
-import org.technologybrewery.fermenter.mda.generator.TestGenerator;
-import org.technologybrewery.fermenter.mda.generator.TestMultipleNotificationGenerator;
-import org.technologybrewery.fermenter.mda.generator.TestSpecificNotificationGenerator;
+import org.technologybrewery.fermenter.mda.generator.*;
 import org.technologybrewery.fermenter.mda.reporting.StatisticsService;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +27,11 @@ public class CreateNotificationSteps {
 
     public static final String APPLE_RECORDS = "apple records";
     private List<TestGenerator> generators;
-    private NotificationService notificationService;
     private StatisticsService statisticsService;
     private VelocityEngine engine;
     private MojoTestCaseWrapper testCase;
+    protected File mavenProjectBaseDir;
+    protected GenerateSourcesMojo generateSourcesMojo;
 
     @Before("@createNotifications")
     public void setup() throws Exception {
@@ -40,7 +39,6 @@ public class CreateNotificationSteps {
         testCase = new MojoTestCaseWrapper();
         testCase.configurePluginTestHarness();
         MavenSession session = testCase.newMavenSession();
-        notificationService = new NotificationService(session);
         statisticsService = new StatisticsService(session);
 
         engine = new VelocityEngine();
@@ -75,6 +73,13 @@ public class CreateNotificationSteps {
         Set<String> itemSet = Sets.newHashSet(itemArray);
 
         TestSpecificNotificationGenerator generator = new TestSpecificNotificationGenerator(key, itemSet, APPLE_RECORDS);
+        generators.add(generator);
+    }
+
+    @Given("^a notification key to suppress$")
+    public void a_notification_key_to_suppress() throws Throwable {
+        MavenSession session = testCase.newMavenSession();
+        TestSuppressedNotificationGenerator generator = new TestSuppressedNotificationGenerator(List.of("test-message-id"), session);
         generators.add(generator);
     }
 
@@ -121,6 +126,13 @@ public class CreateNotificationSteps {
         }
         Assert.assertTrue("Programmatic value was not found in message!", notificationMessage.contains(APPLE_RECORDS));
 
+    }
+
+    @Then("^the notification indicated by the key is not shown")
+    public void the_notification_indicated_by_the_key_is_not_shown() throws Throwable {
+        Map<String, Map<String, Notification>> notificationsByFilenameMap = getNotificationByFilename();
+        notificationsByFilenameMap.values();
+        Assert.assertTrue(notificationsByFilenameMap.isEmpty());
     }
 
     private static Map<String, Map<String, Notification>> getNotificationByFilename() {

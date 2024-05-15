@@ -282,7 +282,7 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
             if(displayMessageKeys) {
                 logger.warn("Message Key: " + notification.getKey() + "\n" + notification.getNotificationAsString());
             } else {
-                logger.warn(notification.getNotificationAsString());
+                groupItems.add(notification.getNotificationAsString());
             }
         }
 
@@ -294,7 +294,9 @@ public class NotificationService extends AbstractMavenLifecycleParticipant {
             }
         }
 
-        logger.warn(groupNotification.getNotificationAsString());
+        if(!displayMessageKeys) {
+            logger.warn(groupNotification.getNotificationAsString());
+        }
     }
 
     protected static String getNotificationJson(Notification notification) {

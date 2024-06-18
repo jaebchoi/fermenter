@@ -9,16 +9,10 @@
 name: Java CI with Maven
 
 on:
-    workflow_dispatch:
-        inputs:
-            buildBranch:
-                description: "Branch you want to build"
-                required: true
-                type: string
-                default: 'dev'
     push:
-        branches: [ "dev", "ci-workflow-fix" ]
+        branches: [ "dev" ]
     pull_request_target:
+
 
 jobs:
     build:

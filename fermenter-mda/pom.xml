@@ -13,10 +13,10 @@
     <packaging>maven-plugin</packaging>
 
     <properties>
-        <version.jackson>2.17.0</version.jackson>
+        <version.jackson>2.17.1</version.jackson>
         <version.maven.core>3.8.6</version.maven.core>
-        <version.maven.plugin.tools>3.11.0</version.maven.plugin.tools>
-        <version.logback>1.5.3</version.logback>
+        <version.maven.plugin.tools>3.13.1</version.maven.plugin.tools>
+        <version.logback>1.5.6</version.logback>
     </properties>
 
     <dependencyManagement>
@@ -25,7 +25,7 @@
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
-                <version>1.7.14</version>
+                <version>1.7.15</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.3.1</version>
+            <version>1.3.2</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -129,6 +129,12 @@
             CVE-2023-37460.  Can be retired when maven-plugin-testing-harness uses plexus-archiver >= 4.8.0.
           -->
         <dependency>
+            <groupId>org.iq80.snappy</groupId>
+            <artifactId>snappy</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-archiver</artifactId>
             <version>4.9.2</version>
@@ -173,7 +179,7 @@
             <plugin>
                 <groupId>org.eclipse.sisu</groupId>
                 <artifactId>sisu-maven-plugin</artifactId>
-                <version>0.9.0.M2</version>
+                <version>0.9.0.M3</version>
                 <executions>
                     <execution>
                         <id>generate-index</id>

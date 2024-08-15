@@ -1,8 +1,8 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
@@ -13,9 +13,9 @@ import org.technologybrewery.fermenter.mda.util.JsonUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 public class TypeSteps {
 
@@ -24,7 +24,7 @@ public class TypeSteps {
     protected Type type;
     protected GenerationException encounteredException;
 
-    @Given("^a type described by \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\"$")
+    @Given("a type described by {string}, {string}, {string}")
     public void a_type_described_by(String name, String fullyQualifiedImplementation, String shortImplementation) throws Throwable {
         Type newType = new Type();
         if (StringUtils.isNotBlank(name)) {
@@ -39,17 +39,17 @@ public class TypeSteps {
 
         typeFile = new File(FileUtils.getTempDirectory(), name + "-types.json");
         objectMapper.writeValue(typeFile, newType);
-        assertTrue("Type not written to file!", typeFile.exists());
+        assertTrue(typeFile.exists(), "Type not written to file!");
 
     }
 
-    @When("^types are read$")
-    public void types_are_read() throws Throwable {
+    @When("types are read")
+    public void types_are_read() {
         encounteredException = null;
 
         try {
             type = JsonUtils.readAndValidateJson(typeFile, Type.class);
-            assertNotNull("Could not read target file!", type);
+            assertNotNull(type, "Could not read target file!");
 
         } catch (GenerationException e) {
             encounteredException = e;
@@ -57,15 +57,15 @@ public class TypeSteps {
 
     }
 
-    @Then("^a valid type is available can be looked up name \"([^\"]*)\"$")
-    public void a_valid_type_is_available_can_be_looked_up_name(String expectedName) throws Throwable {
-        assertEquals("Unexpected name encountered!", expectedName, type.getName());
+    @Then("a valid type is available can be looked up name {string}")
+    public void a_valid_type_is_available_can_be_looked_up_name(String expectedName) {
+        assertEquals(expectedName, type.getName(), "Unexpected name encountered!");
     }
     
 
-    @Then("^the generator throws an exception about invalid type metadata$")
-    public void the_generator_throws_an_exception_about_invalid_type_metadata() throws Throwable {
-        assertNotNull("A GenerationException should have been thrown!", encounteredException);
+    @Then("the generator throws an exception about invalid type metadata")
+    public void the_generator_throws_an_exception_about_invalid_type_metadata() {
+        assertNotNull(encounteredException, "A GenerationException should have been thrown!");
     }    
 
 }

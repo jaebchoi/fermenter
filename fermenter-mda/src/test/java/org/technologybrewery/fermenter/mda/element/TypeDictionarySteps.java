@@ -1,8 +1,8 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -24,10 +24,10 @@ import org.technologybrewery.fermenter.mda.util.MessageTracker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cucumber.api.java.After;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 public class TypeDictionarySteps {
     
@@ -39,8 +39,6 @@ public class TypeDictionarySteps {
     private GenerationException encounteredException;
     private DefaultModelInstanceRepository metadataRepo;
     private File dictionaryTypeDirectory = new File("target/temp-metadata", config.getDictionaryTypesRelativePath());
-
-    // Also uses CommonSteps for setup and tear down    
     
     @After("@typeDictionary")
     public void cleanUp() {
@@ -49,23 +47,23 @@ public class TypeDictionarySteps {
         messageTracker.clear();
     }
 
-    @Given("^a dictionary type described by \"([^\"]*)\", \"([^\"]*)\"$")
+    @Given("a dictionary type described by {string}, {string}")
     public void a_dictionary_type_described_by(String name, String type) throws Throwable {
         createDictionaryType(name, type, null, null, null);
     }
 
-    @Given("^a dictionary type described by \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\"$")
+    @Given("a dictionary type described by {string}, {string}, \"{listOfStrings}\"")
     public void a_dictionary_type_described_by(String name, String type, List<String> formats) throws Throwable {
         createDictionaryType(name, type, null, null, formats);
     }
 
-    @Given("^a dictionary type described by \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\"$")
+    @Given("a dictionary type described by {string}, {string}, {string}, {string}")
     public void a_dictionary_type_described_by(String name, String type, String minLength, String maxLength)
             throws Throwable {
         createDictionaryType(name, type, minLength, maxLength, null);
     }
 
-    @Given("^a dictionary type described by \"([^\"]*)\", \"([^\"]*)\" with a blank format$")
+    @Given("a dictionary type described by {string}, {string} with a blank format")
     public void a_dictionary_type_described_by_with_a_null_format(String name, String type) throws Throwable {
         List<String> emptyFormat = new ArrayList<>();
 
@@ -75,14 +73,14 @@ public class TypeDictionarySteps {
         createDictionaryType(name, type, null, null, emptyFormat);
     }
 
-    @Given("^dictionary files that are described by the following different names$")
+    @Given("dictionary files that are described by the following different names")
     public void dictionary_files_that_are_described_by_the_following_different_names(List<String> inputTypes)
             throws Throwable {
         createDictionaryTypes(inputTypes);
     }
 
-    @When("^dictionary type file is read$")
-    public void dictionary_type_file_is_read() throws Throwable {
+    @When("dictionary type file is read")
+    public void dictionary_type_file_is_read() {
         encounteredException = null;
         try {
             ModelRepositoryConfiguration config = new ModelRepositoryConfiguration();
@@ -100,21 +98,21 @@ public class TypeDictionarySteps {
         }
     }
 
-    @Then("^a valid dictionary type is available and can be looked up by name \"([^\"]*)\"$")
-    public void a_valid_dictionary_type_is_available_and_can_be_looked_up_by_name(String name) throws Throwable {
+    @Then("a valid dictionary type is available and can be looked up by name {string}")
+    public void a_valid_dictionary_type_is_available_and_can_be_looked_up_by_name(String name) {
         DictionaryType loadedDictionaryType = metadataRepo.getDictionaryType(name);
-        assertEquals("Unexpected dictionary type name!", name, loadedDictionaryType.getName());
+        assertEquals(name, loadedDictionaryType.getName(), "Unexpected dictionary type name!");
     }
 
-    @Then("^the generator throws an exception about invalid dictionary type metadata$")
-    public void the_generator_throws_an_exception_about_invalid_dictionary_type_metadata() throws Throwable {
-        assertNotNull("A GenerationException should have been thrown!", encounteredException);
+    @Then("the generator throws an exception about invalid dictionary type metadata")
+    public void the_generator_throws_an_exception_about_invalid_dictionary_type_metadata() {
+        assertNotNull(encounteredException, "A GenerationException should have been thrown!");
     }
 
-    @Then("^there should be five dictionary types available$")
-    public void there_should_be_five_dictionary_types_available() throws Throwable {
-        assertEquals("Dictionary size doesn't match the number of types available!", 5,
-                metadataRepo.getDictionaryTypes().size());
+    @Then("there should be five dictionary types available")
+    public void there_should_be_five_dictionary_types_available() {
+        assertEquals(5, metadataRepo.getDictionaryTypes().size(),
+            "Dictionary size doesn't match the number of types available!");
     }
 
     /**
@@ -158,7 +156,7 @@ public class TypeDictionarySteps {
         // write the json file to the dictionary location
         typeDictionaryFile = new File(dictionaryTypeDirectory, name + ".json");
         objectMapper.writeValue(typeDictionaryFile, newDictionaryType);
-        assertTrue("Dictionary type not written to file!", typeDictionaryFile.exists());
+        assertTrue(typeDictionaryFile.exists(), "Dictionary type not written to file!");
     }
 
     /**
@@ -184,7 +182,7 @@ public class TypeDictionarySteps {
 
             typeDictionaryFile = new File(dictionaryTypeDirectory, name + ".json");
             objectMapper.writeValue(typeDictionaryFile, newDictionaryType);
-            assertTrue("Dictionary type not written to file!", typeDictionaryFile.exists());
+            assertTrue(typeDictionaryFile.exists(), "Dictionary type not written to file!");
         }
     }
 }

@@ -1,20 +1,26 @@
 package org.technologybrewery.fermenter.mda.element;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cucumber.api.java.After;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.technologybrewery.fermenter.mda.util.JsonUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AdvancedProfileSteps {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdvancedProfileSteps.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private ArrayList<String> foundProfiles = new ArrayList<>();
@@ -28,7 +34,7 @@ public class AdvancedProfileSteps {
         profileFile = null;
     }
 
-    @Given("^the following profiles and related targets:$")
+    @Given("the following profiles and related targets:")
     public void the_following_profiles_and_related_targets(List<FamilyInput> inputs) throws Throwable {
         String familyName;
         String profileName;
@@ -49,8 +55,8 @@ public class AdvancedProfileSteps {
             family.setProfileReferences(profileRefs);
             familyFile = new File(FileUtils.getTempDirectory(), familyName + "-family.json");
             objectMapper.writeValue(familyFile, family);
-            System.out.println("Wrote to " + familyFile.getAbsolutePath());
-            assertTrue("Family not written to file!", familyFile.exists());
+            logger.info("Wrote to {}", familyFile.getAbsolutePath());
+            assertTrue(familyFile.exists(), "Family not written to file!");
 
             Profile profile = new Profile();
             profile.setName(profileName);
@@ -60,20 +66,20 @@ public class AdvancedProfileSteps {
 
     }
 
-    @When("^implementations for \"([^\"]*)\" are requested$")
+    @When("implementations for {string} are requested")
     public void implementations_for_are_requested(String requestedFamily) throws Throwable {
         String fileName = requestedFamily + "-family.json";
         File temp = new File(FileUtils.getTempDirectory(), fileName);
-        System.out.println("file to read is " + temp);
+        logger.info("file to read is {}", temp);
         Family family = JsonUtils.readAndValidateJson(temp, Family.class);
-        assertNotNull("Could not read family file!", family);
+        assertNotNull(family, "Could not read family file!");
 
         for (ProfileReference profile : family.getProfileReferences()) {
             foundProfiles.add(profile.getName());
         }
     }
 
-    @Then("^the following \"([^\"]*)\" are return$")
+    @Then("the following {string} are return")
     public void the_following_are_return(String expectedProfiles) throws Throwable {
         String[] expectedArr = expectedProfiles.split(",");
         assertEquals(expectedArr.length, foundProfiles.size());

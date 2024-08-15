@@ -1,15 +1,23 @@
 package org.technologybrewery.fermenter.mda;
 
-import org.junit.runner.RunWith;
-
-import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
+import io.cucumber.junit.platform.engine.Constants;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.ExcludeTags;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
 /**
- * Test harness to run Gherkin Business Driven Development specifications.
+ * Work around. Surefire does not use JUnits Test Engine discovery
+ * functionality. Alternatively execute the
+ * org.junit.platform.console.ConsoleLauncher with the maven-antrun-plugin.
  */
-@RunWith(Cucumber.class)
-@CucumberOptions(features="src/test/resources/specifications", plugin="json:target/cucumber-html-reports/cucumber.json")
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("specifications")
+@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "org.technologybrewery.fermenter")
+@ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "pretty")
+@ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "json:target/cucumber-reports/cucumber.json")
 public class TestSpecifications {
 
 }

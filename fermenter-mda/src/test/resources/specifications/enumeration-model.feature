@@ -17,7 +17,7 @@ Feature: Specify enumerations for use in model-driven file generation
     When enumerations are read
     Then NO enumeration metamodel instance is returned for the name "<name>" in "<lookupPackage>"
 
-    Examples: 
+    Examples:
       | name        | package       | constants                | lookupPackage |
       | Compass     | my.navigation | North, East, South, West | alt.package   |
       | WeekendDays | my.weekends   | Saturday, Sunday         | my.weekdays   |
@@ -28,7 +28,7 @@ Feature: Specify enumerations for use in model-driven file generation
     Then an enumeration metamodel instance is returned for the name "<name>" in "<package>" with the enum constants "<constantNames>" and matching values "<constantValues>"
     And the enumeration is of type "valued"
 
-    Examples: 
+    Examples:
       | name          | package     | constantNames            | constantValues |
       | FirstQuarter  | my.calendar | January, February, March | 1, 2, 3        |
       | SecondQuarter | my.calendar | April, May, June         | 4, 5, 6        |
@@ -38,7 +38,7 @@ Feature: Specify enumerations for use in model-driven file generation
     When enumerations are read
     Then an error is returned
 
-    Examples: 
+    Examples:
       | name      | fileName          |
       | Compass   | notCompass.json   |
       | DayOfWeek | notDayOfWeek.json |

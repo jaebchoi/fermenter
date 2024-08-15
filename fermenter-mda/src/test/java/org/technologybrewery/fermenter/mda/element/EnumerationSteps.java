@@ -1,17 +1,11 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.aeonbits.owner.KrauseningConfigFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.technologybrewery.fermenter.mda.generator.GenerationException;
@@ -23,22 +17,23 @@ import org.technologybrewery.fermenter.mda.metamodel.element.Enum;
 import org.technologybrewery.fermenter.mda.metamodel.element.EnumElement;
 import org.technologybrewery.fermenter.mda.metamodel.element.Enumeration;
 import org.technologybrewery.fermenter.mda.metamodel.element.EnumerationElement;
-import org.technologybrewery.fermenter.mda.util.MessageTracker;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import cucumber.api.java.After;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EnumerationSteps {
     
     private static final MetamodelConfig config = KrauseningConfigFactory.create(MetamodelConfig.class);
     private ObjectMapper objectMapper = new ObjectMapper();
-    private MessageTracker messageTracker = MessageTracker.getInstance();
     private File enumerationsDirectory = new File("target/temp-metadata", config.getEnumerationsRelativePath());
 
     private String currentBasePackage;
@@ -48,25 +43,26 @@ public class EnumerationSteps {
     protected GenerationException encounteredException;
     protected DefaultModelInstanceRepository metadataRepo;
 
-    // Also uses CommonSteps for setup and tear down    
-    
-    @After("@enumeration,@service")
-    public void cleanUp() {
-        loadedEnumeration = null;
-
-        messageTracker.clear();
-        
-        currentBasePackage = null;
+    @Before("@enumeration")
+    public void setUp() {
+        CommonSteps.performCommonBeforeTasks();
     }
 
-    @Given("^an enumeration named \"([^\"]*)\" in \"([^\"]*)\" and enum constants \"([^\"]*)\"$")
-    public void an_enumeration_named_in_and_enum_constants(String name, String packageValue, List<String> constants)
+    @After("@enumeration")
+    public void cleanUp() throws Throwable {
+        loadedEnumeration = null;
+        currentBasePackage = null;
+        CommonSteps.performCommonAfterTasks();
+    }
+
+    @Given("an enumeration named {string} in {string} and enum constants \"{listOfStrings}\"")
+    public void an_enumeration_named_in_and_enum_constants(String name, String packageValue, List<String> listOfStrings)
             throws Throwable {
-        createEnumerations(name, packageValue, constants, null);
+        createEnumerations(name, packageValue, listOfStrings, null);
     }
 
     private void createEnumerations(String name, String packageValue, List<String> constantNames,
-            List<String> constantValues) throws IOException, JsonGenerationException, JsonMappingException {
+            List<Integer> constantValues) throws IOException {
         EnumerationElement enumeration = new EnumerationElement();
         enumeration.setName(name);
         enumeration.setPackage(packageValue);
@@ -76,27 +72,28 @@ public class EnumerationSteps {
             EnumElement newEnumConstant = new EnumElement();
             newEnumConstant.setName(constant);
             if (constantValues != null) {
-                newEnumConstant.setValue(Integer.valueOf(constantValues.get(index)));
+                newEnumConstant.setValue(constantValues.get(index));
             }
             enumeration.addEnums(newEnumConstant);
 
             index++;
         }
 
+        enumerationsDirectory.mkdirs();
         enumerationFile = new File(enumerationsDirectory, name + ".json");
         objectMapper.writeValue(enumerationFile, enumeration);
-        assertTrue("Enumeration not written to file!", enumerationFile.exists());
+        assertTrue(enumerationFile.exists(), "Enumeration not written to file!");
         
         currentBasePackage = packageValue;
     }
 
-    @Given("^an enumeration named \"([^\"]*)\" in \"([^\"]*)\" and enum constant names \"([^\"]*)\" and values \"([^\"]*)\"$")
+    @Given("an enumeration named {string} in {string} and enum constant names \"{listOfStrings}\" and values \"{listOfIntegers}\"")
     public void an_enumeration_named_in_and_enum_constant_names_and_values(String name, String packageValue,
-            List<String> constantNames, List<String> constantValues) throws Throwable {
+            List<String> constantNames, List<Integer> constantValues) throws Throwable {
         createEnumerations(name, packageValue, constantNames, constantValues);
     }
     
-    @Given("^an enumeration named \"([^\"]*)\" in \"([^\"]*)\"$")
+    @Given("an enumeration named {string} in {string}")
     public void an_enumeration_named_in(String name, String fileName) throws Throwable {        
     	final String localPackage = "default.package";
     	EnumerationElement enumeration = new EnumerationElement();
@@ -110,15 +107,15 @@ public class EnumerationSteps {
         enumerationsDirectory.mkdirs();
         enumerationFile = new File(enumerationsDirectory, fileName);
         objectMapper.writeValue(enumerationFile, enumeration);
-        assertTrue("Enumeration not written to file!", enumerationFile.exists());
+        assertTrue(enumerationFile.exists(), "Enumeration not written to file!");
         
         currentBasePackage = localPackage;
     	
     }
 
 
-    @When("^enumerations are read$")
-    public void enumerations_are_read() throws Throwable {
+    @When("enumerations are read")
+    public void enumerations_are_read() {
         encounteredException = null;
 
         try {
@@ -137,15 +134,14 @@ public class EnumerationSteps {
         }
     }
 
-    @Then("^an enumeration metamodel instance is returned for the name \"([^\"]*)\" in \"([^\"]*)\" with the enum constants \"([^\"]*)\"$")
+    @Then("an enumeration metamodel instance is returned for the name {string} in {string} with the enum constants \"{listOfStrings}\"")
     public void an_enumeration_metamodel_instance_is_returned_for_the_name_in_with_the_enum_constants(String name,
-            String packageName, List<String> constants) throws Throwable {
+            String packageName, List<String> constants) {
         validateLoadedConstants(name, packageName, constants, null);
     }
 
-    @Then("^NO enumeration metamodel instance is returned for the name \"([^\"]*)\" in \"([^\"]*)\"$")
-    public void no_enumeration_metamodel_instance_is_returned_for_the_name_in(String name, String packageName)
-            throws Throwable {
+    @Then("NO enumeration metamodel instance is returned for the name {string} in {string}")
+    public void no_enumeration_metamodel_instance_is_returned_for_the_name_in(String name, String packageName) {
         if (encounteredException != null) {
             throw encounteredException;
         }
@@ -155,53 +151,51 @@ public class EnumerationSteps {
         assertNull(loadedEnumeration);
     }
 
-    @Then("^an enumeration metamodel instance is returned for the name \"([^\"]*)\" in \"([^\"]*)\" with the enum constants \"([^\"]*)\" and matching values \"([^\"]*)\"$")
+    @Then("an enumeration metamodel instance is returned for the name {string} in {string} with the enum constants \"{listOfStrings}\" and matching values \"{listOfIntegers}\"")
     public void an_enumeration_metamodel_instance_is_returned_for_the_name_in_with_the_enum_constants_and_matching_values(
-            String name, String packageName, List<String> constantNames, List<String> constantValues) throws Throwable {
+            String name, String packageName, List<String> constantNames, List<Integer> constantValues) {
         validateLoadedConstants(name, packageName, constantNames, constantValues);
     }
 
-    @Then("^the enumeration is of type \"([^\"]*)\"$")
-    public void the_enumeration_is_of_type(String enumerationType) throws Throwable {
+    @Then("the enumeration is of type {string}")
+    public void the_enumeration_is_of_type(String enumerationType) {
         if ("named".equalsIgnoreCase(enumerationType)) {
-            assertTrue("Should have been a named enumeration!", loadedEnumeration.isNamed());
-            assertFalse("Should have been a named enumeration!", loadedEnumeration.isValued());
+            assertTrue(loadedEnumeration.isNamed(), "Should have been a named enumeration!");
+            assertFalse(loadedEnumeration.isValued(), "Should have been a named enumeration!");
             
         } else {
-            assertFalse("Should have been a valued enumeration!", loadedEnumeration.isNamed());
-            assertTrue("Should have been a valued enumeration!", loadedEnumeration.isValued());
+            assertFalse(loadedEnumeration.isNamed(), "Should have been a valued enumeration!");
+            assertTrue(loadedEnumeration.isValued(), "Should have been a valued enumeration!");
             
         }
     }
     
-    @Then("^an error is returned$")
-    public void an_error_is_returned() throws Throwable {
-    	assertNotNull("Expected at least on error!", encounteredException);
+    @Then("an error is returned")
+    public void an_error_is_returned() {
+    	assertNotNull(encounteredException, "Expected at least on error!");
     	
     }
 
     private void validateLoadedConstants(String name, String packageName, List<String> constantNames,
-            List<String> constantValues) {
+            List<Integer> constantValues) {
         if (encounteredException != null) {
             throw encounteredException;
         }
 
         loadedEnumeration = metadataRepo.getEnumerations(packageName).get(name);
-        assertEquals("Unexpected enumeration name!", name, loadedEnumeration.getName());
-        assertEquals("Unexpected enumeration package!", packageName, loadedEnumeration.getPackage());
+        assertEquals(name, loadedEnumeration.getName(), "Unexpected enumeration name!");
+        assertEquals(packageName, loadedEnumeration.getPackage(), "Unexpected enumeration package!");
 
         List<Enum> loadedConstants = loadedEnumeration.getEnums();
-        assertEquals("Did not find the expected number of enum constants!", constantNames.size(),
-                loadedConstants.size());
+        assertEquals(constantNames.size(), loadedConstants.size(), "Did not find the expected number of enum constants!");
         Map<String, Enum> loadedConstantMap = loadedConstants.stream().collect(Collectors.toMap(Enum::getName, x -> x));
 
         int index = 0;
         for (String constant : constantNames) {
             Enum loadedConstantInstance = loadedConstantMap.get(constant);
-            assertNotNull("Could not find enum constant " + constant + "!", loadedConstantMap.get(constant));
+            assertNotNull(loadedConstantMap.get(constant), "Could not find enum constant " + constant + "!");
             if (constantValues != null) {
-                assertEquals("Constant value unexpected!", Integer.valueOf(constantValues.get(index)),
-                        loadedConstantInstance.getValue());
+                assertEquals(constantValues.get(index), loadedConstantInstance.getValue(), "Constant value unexpected!");
             }
 
             index++;

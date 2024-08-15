@@ -174,7 +174,7 @@ Feature: Specify services for use in model-driven file generation
         When services are read
         Then an error is thrown for "badOperation" because you cannot have pagedResponse enabled and return type is void
 
-    Scenario Outline: Page Index and Page Size are automatically added as default paramters to paged responses
+    Scenario Outline: Page Index and Page Size are automatically added as default parameters to paged responses
         Given a service with with a paged operation with "<parameters>" parameters
         When services are read
         Then the operation has "<parametersWithStartPageAndSize>" parameters which now included as the last two parameters

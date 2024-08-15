@@ -1,10 +1,10 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
@@ -19,7 +19,8 @@ import org.technologybrewery.fermenter.mda.util.PriorityMessageService;
 
 import org.apache.maven.execution.MavenSession;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +38,11 @@ public class PriorityMessageSteps {
 
     @Before("@priorityMessage")
     public void configureMavenTestSession() throws Exception {
-        //setup the new maven session and necessary classes for priority messages
+        //set up the new maven session and necessary classes for priority messages
         this.session = mojoTestCase.newMavenSession();
         this.priorityMessageService = new PriorityMessageService(this.session);
         this.priorityMessageExecution = new PriorityMessageExecution();
-        this.priorityMessages = new ArrayList<PriorityMessage>();
+        this.priorityMessages = new ArrayList<>();
 
         //tool used for collecting the logging output
         this.listAppender = new ListAppender<>();
@@ -54,20 +55,20 @@ public class PriorityMessageSteps {
         mojoTestCase.tearDownPluginTestHarness();
     }
 
-    @When("^the priority message\\(s\\) is\\(are\\) added to the maven session$")
-    public void the_priority_message_s_is_added_to_the_maven_session() throws Throwable {
+    @When("the priority message\\(s\\) is\\(are\\) added to the maven session")
+    public void the_priority_message_s_is_added_to_the_maven_session() {
         //adds all the priority messages to the session using the service
         priorityMessages.forEach(priorityMessageService::addPriorityMessage);
     }
 
-    @Given("^a priority message without metadata$")
-    public void a_priority_message_without_metadata() throws Throwable {
+    @Given("a priority message without metadata")
+    public void a_priority_message_without_metadata() {
         PriorityMessage message = new PriorityMessage("Test Message");
         priorityMessages.add(message);
     }
 
-    @Then("^a priority message without metadata should be displayed at session end$")
-    public void a_priority_message_without_metadata_should_be_displayed_at_session_end() throws Throwable {
+    @Then("a priority message without metadata should be displayed at session end")
+    public void a_priority_message_without_metadata_should_be_displayed_at_session_end() {
         //***********************************************************************
         //*** Fermenter High Priority Messages                                ***
         //***********************************************************************
@@ -96,14 +97,14 @@ public class PriorityMessageSteps {
         assertEquals(Level.WARN, logsList.get(0).getLevel());
     }
 
-    @Given("^a priority message with metadata$")
-    public void a_priority_message_with_metadata() throws Throwable {
+    @Given("a priority message with metadata")
+    public void a_priority_message_with_metadata() {
         PriorityMessage message = new PriorityMessage("Test Message", "test/file/path");
         priorityMessages.add(message);
     }
 
-    @Then("^a priority message with metadata should be displayed at session end$")
-    public void a_priority_message_with_metadata_should_be_displayed_at_session_end() throws Throwable {
+    @Then("a priority message with metadata should be displayed at session end")
+    public void a_priority_message_with_metadata_should_be_displayed_at_session_end() {
         //***********************************************************************
         //*** Fermenter High Priority Messages                                ***
         //***********************************************************************
@@ -133,8 +134,8 @@ public class PriorityMessageSteps {
         assertEquals(Level.WARN, logsList.get(0).getLevel());
     }
 
-    @Given("^multiple priority messages$")
-    public void multiple_priority_messages() throws Throwable {
+    @Given("multiple priority messages")
+    public void multiple_priority_messages() {
         PriorityMessage message1 = new PriorityMessage("Test Message 1", "test/file/path/");
         PriorityMessage message2 = new PriorityMessage("Test Message 2");
 
@@ -142,8 +143,8 @@ public class PriorityMessageSteps {
         priorityMessages.add(message2);
     }
 
-    @Then("^the priority messages should be displayed at session end$")
-    public void the_priority_messages_should_be_displayed_at_session_end() throws Throwable {
+    @Then("the priority messages should be displayed at session end")
+    public void the_priority_messages_should_be_displayed_at_session_end() {
         //***********************************************************************
         //*** Fermenter High Priority Messages                                ***
         //***********************************************************************
@@ -177,12 +178,12 @@ public class PriorityMessageSteps {
         assertEquals(Level.WARN, logsList.get(0).getLevel());
     }
 
-    @Given("^no priority messages$")
-    public void no_priority_messages() throws Throwable { //no messages, so nothing to do
+    @Given("no priority messages")
+    public void no_priority_messages() { //no messages, so nothing to do
     }
 
-    @Then("^no priority messages should be displayed at session end$")
-    public void no_priority_messages_should_be_displayed_at_session_end() throws Throwable {
+    @Then("no priority messages should be displayed at session end")
+    public void no_priority_messages_should_be_displayed_at_session_end() {
         //Should not be any output from the end of session command
         priorityMessageExecution.afterSessionEnd(this.session);
 

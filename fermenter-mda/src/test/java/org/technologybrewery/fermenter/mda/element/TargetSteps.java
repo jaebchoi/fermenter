@@ -1,21 +1,21 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.DataTableType;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.technologybrewery.fermenter.mda.generator.GenerationException;
 import org.technologybrewery.fermenter.mda.util.JsonUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.util.Map;
 
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TargetSteps {
 
@@ -24,7 +24,7 @@ public class TargetSteps {
     protected Target target;
     protected GenerationException encounteredException;
 
-    @Given("^a target described by \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\"$")
+    @Given("a target described by {string}, {string}, {string}, {string}, {string}, {string}")
     public void a_target_described_by(String name, String generator, String templateName, String outputFile,
             String overwritable, String artifactType) throws Throwable {
         Target newTarget = new Target();
@@ -41,7 +41,7 @@ public class TargetSteps {
             newTarget.setOutputFile(outputFile);
         }
         if (StringUtils.isNotBlank(overwritable)) {
-            newTarget.setOverwritable(Boolean.valueOf(overwritable));
+            newTarget.setOverwritable(Boolean.parseBoolean(overwritable));
         }
         if (StringUtils.isNotBlank(artifactType)) {
             newTarget.setArtifactType(artifactType);
@@ -49,23 +49,23 @@ public class TargetSteps {
 
         targetFile = new File(FileUtils.getTempDirectory(), templateName + "-target.json");
         objectMapper.writeValue(targetFile, newTarget);
-        assertTrue("Target not written to file!", targetFile.exists());
+        assertTrue(targetFile.exists(), "Target not written to file!");
 
     }
 
-    @Given("^a target described with without an artifact type value$")
+    @Given("a target described with without an artifact type value")
     public void a_target_described_with_without_an_artifact_type_value() throws Throwable {
-        a_target_described_by("testArtfiactTypeDefaulting", "o.b.c.f.FooGenerator", "template.java.vm", "SomeFile.Java",
+        a_target_described_by("testArtifactTypeDefaulting", "o.b.c.f.FooGenerator", "template.java.vm", "SomeFile.Java",
                 Boolean.TRUE.toString(), null);
     }
 
-    @When("^targets are read$")
-    public void targets_are_read() throws Throwable {
+    @When("targets are read")
+    public void targets_are_read() {
         encounteredException = null;
 
         try {
             target = JsonUtils.readAndValidateJson(targetFile, Target.class);
-            assertNotNull("Could not read target file!", target);
+            assertNotNull(target, "Could not read target file!");
 
         } catch (GenerationException e) {
             encounteredException = e;
@@ -73,19 +73,31 @@ public class TargetSteps {
 
     }
 
-    @Then("^a valid target is available can be looked up name \"([^\"]*)\"$")
-    public void a_valid_target_is_available_can_be_looked_up_name(String expectedName) throws Throwable {
+    @Then("a valid target is available can be looked up name {string}")
+    public void a_valid_target_is_available_can_be_looked_up_name(String expectedName) {
         assertEquals(expectedName, target.getName());
     }
 
-    @Then("^the generator throws an exception about invalid metadata$")
-    public void the_generator_throws_an_exception_about_invalid_metadata() throws Throwable {
-        assertNotNull("A GenerationException should have been thrown!", encounteredException);
+    @Then("the generator throws an exception about invalid metadata")
+    public void the_generator_throws_an_exception_about_invalid_metadata() {
+        assertNotNull(encounteredException, "A GenerationException should have been thrown!");
     }
 
-    @Then("^a valid target is available and has an artifact type of \"([^\"]*)\"$")
-    public void a_valid_target_is_available_and_has_an_artifact_type_of(String expectedArtifactType) throws Throwable {
+    @Then("a valid target is available and has an artifact type of {string}")
+    public void a_valid_target_is_available_and_has_an_artifact_type_of(String expectedArtifactType) {
         assertEquals(expectedArtifactType, target.getArtifactType());
+    }
+
+    @DataTableType
+    public Target targetEntry(Map<String, String> entry) {
+        Target input = new Target();
+        input.setName(entry.get("name"));
+        input.setGenerator(entry.get("generator"));
+        input.setTemplateName(entry.get("templateName"));
+        input.setOutputFile(entry.get("outputFile"));
+        input.setOverwritable(Boolean.parseBoolean(entry.get("overwritable")));
+
+        return input;
     }
 
 }

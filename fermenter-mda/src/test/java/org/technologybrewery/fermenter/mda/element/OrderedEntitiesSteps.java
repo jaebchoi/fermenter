@@ -1,14 +1,16 @@
 package org.technologybrewery.fermenter.mda.element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import io.cucumber.java.DataTableType;
 import org.apache.commons.lang3.StringUtils;
 import org.technologybrewery.fermenter.mda.metamodel.ModelContext;
 import org.technologybrewery.fermenter.mda.metamodel.element.Entity;
@@ -16,14 +18,10 @@ import org.technologybrewery.fermenter.mda.metamodel.element.EntityElement;
 import org.technologybrewery.fermenter.mda.metamodel.element.ReferenceElement;
 import org.technologybrewery.fermenter.mda.metamodel.element.RelationElement;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import cucumber.api.java.After;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 public class OrderedEntitiesSteps extends AbstractEntitySteps {
 
@@ -41,23 +39,23 @@ public class OrderedEntitiesSteps extends AbstractEntitySteps {
 
     }
 
-    @Given("^the following entities:$")
+    @Given("the following entities:")
     public void the_following_entities(List<EntityTestInfo> entityInfos) throws Throwable {
         createEntities(entityInfos);
     }
 
-    @Given("^the following entities and their references:$")
+    @Given("the following entities and their references:")
     public void the_following_entities_and_their_references(List<EntityTestInfo> entityInfos) throws Throwable {
         createEntities(entityInfos);
     }
     
-    @Given("^the following entities and their relations:$")
+    @Given("the following entities and their relations:")
     public void the_following_entities_and_their_relations(List<EntityTestInfo> entityInfos) throws Throwable {
         createEntities(entityInfos);
     }    
 
-    @When("^the entities are loaded$")
-    public void the_entities_are_loaded() throws Throwable {
+    @When("the entities are loaded")
+    public void the_entities_are_loaded() {
         this.readEntities();
 
         Set<Entity> entitiesByDependency = metadataRepo.getEntitiesByDependencyOrder(ModelContext.LOCAL.toString());
@@ -69,26 +67,25 @@ public class OrderedEntitiesSteps extends AbstractEntitySteps {
 
     }
 
-    @Then("^the values are listed in the following order:$")
-    public void the_values_are_listed_in_the_following_order(List<String> expectedOrder) throws Throwable {
+    @Then("the values are listed in the following order:")
+    public void the_values_are_listed_in_the_following_order(List<String> expectedOrder) {
         for (String expectedString : expectedOrder) {
             int expectedLocation = expectedOrder.indexOf(expectedString);
             int actualLocation = orderedEntityNames.indexOf(expectedString);
-            assertEquals("Order not expected for value '" + expectedString + "'!", expectedLocation, actualLocation);
+            assertEquals(expectedLocation, actualLocation, "Order not expected for value '" + expectedString + "'!");
         }
     }
 
-    @Then("^\"([^\"]*)\" is a precursor of \"([^\"]*)\"$")
-    public void is_a_precursor_of(String precursor, String value) throws Throwable {
+    @Then("{string} is a precursor of {string}")
+    public void is_a_precursor_of(String precursor, String value) {
         int indexOfPrecursor = orderedEntityNames.indexOf(precursor);
         int indexOfValue = orderedEntityNames.indexOf(value);
 
-        assertTrue("precursor is NOT before the value as expected!", indexOfPrecursor < indexOfValue);
+        assertTrue(indexOfPrecursor < indexOfValue, "precursor is NOT before the value as expected!");
 
     }
 
-    protected void createEntities(List<EntityTestInfo> entityInfos)
-            throws IOException, JsonGenerationException, JsonMappingException, JsonProcessingException {
+    protected void createEntities(List<EntityTestInfo> entityInfos) throws IOException {
         for (EntityTestInfo entityInfo : entityInfos) {
             EntityElement entity = new EntityElement();
             entity.setName(entityInfo.entityName);
@@ -136,10 +133,20 @@ public class OrderedEntitiesSteps extends AbstractEntitySteps {
         }
     }    
 
-    public class EntityTestInfo {
+    public static class EntityTestInfo {
         public String entityName;
         public String references;
         public String relations;
+    }
+
+    @DataTableType
+    public EntityTestInfo relationInputEntry(Map<String, String> entry) {
+        EntityTestInfo input = new EntityTestInfo();
+        input.entityName = entry.get("entityName");
+        input.references = entry.get("references");
+        input.relations = entry.get("relations");
+
+        return input;
     }
 
 }

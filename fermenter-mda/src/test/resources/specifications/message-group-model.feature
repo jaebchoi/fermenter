@@ -7,7 +7,7 @@ Feature: Specify mesasge groups for use in model-driven file generation
       | <messageKey1> | <messageText1> |
       | <messageKey2> | <messageText2> |
     When message groups are read
-    Then a meessage group is returned for the name "<name>" in "<package>" and the messages:
+    Then a message group is returned for the name "<name>" in "<package>" and the messages:
       | name          | text           |
       | <messageKey1> | <messageText1> |
       | <messageKey2> | <messageText2> |
@@ -20,4 +20,4 @@ Feature: Specify mesasge groups for use in model-driven file generation
   Scenario: required field name is not provided
     Given a message group named "" in "missing.name.package" and a least one valid message
     When message groups are read
-    Then the generator throws an exception about a invalid mssage group
+    Then the generator throws an exception about a invalid message group

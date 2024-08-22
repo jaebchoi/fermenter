@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.technologybrewery</groupId>
         <artifactId>parent</artifactId>
-        <version>9</version>
+        <version>10</version>
     </parent>
 
     <groupId>org.technologybrewery.fermenter</groupId>
@@ -60,7 +60,7 @@
     </modules>
 
     <properties>
-        <cucumber.version>1.2.6</cucumber.version>
+        <cucumber.version>7.18.1</cucumber.version>
         <log4j.version>2.7</log4j.version>
         <slf4j.version>2.0.7</slf4j.version>
     </properties>
@@ -104,23 +104,20 @@
                 <artifactId>guava</artifactId>
                 <version>33.2.1-jre</version>
             </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.2</version>
-                <scope>test</scope>
-            </dependency>
+
             <dependency>
                 <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-java</artifactId>
-                <version>${cucumber.version}</version>
-                <scope>test</scope>
+                <artifactId>cucumber-bom</artifactId>
+                <version>7.18.1</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-junit</artifactId>
-                <version>${cucumber.version}</version>
-                <scope>test</scope>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.2</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -131,41 +128,34 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
+                        <properties>
+                            <configurationParameters>
+                                cucumber.junit-platform.naming-strategy=long
+                            </configurationParameters>
+                        </properties>
                         <systemPropertyVariables>
                             <KRAUSENING_BASE>${project.basedir}/src/test/resources/krausening/base</KRAUSENING_BASE>
                             <KRAUSENING_EXTENSIONS>${project.basedir}/src/test/resources/krausening/extensions
                             </KRAUSENING_EXTENSIONS>
                             <KRAUSENING_PASSWORD>dev</KRAUSENING_PASSWORD>
-                            <cucumber.options>--tags ~@manual</cucumber.options>
+                            <cucumber.filter.tags>not @manual</cucumber.filter.tags>
                         </systemPropertyVariables>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>net.masterthought</groupId>
-                    <artifactId>maven-cucumber-reporting</artifactId>
-                    <version>5.7.5</version>
-                    <executions>
-                        <execution>
-                            <id>execution</id>
-                            <phase>post-integration-test</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                            <configuration>
-                                <projectName>fermenter</projectName>
-                                <outputDirectory>${project.build.directory}/cucumber-html-reports</outputDirectory>
-                                <jsonFiles>
-                                    <!-- supports wildcard or name pattern -->
-                                    <param>**/*.json</param>
-                                </jsonFiles>
-                                <checkBuildResult>false</checkBuildResult>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--
+                        While we build with Java 17, continue to release Java 11 compatible code until
+                        Maven 4 is the minimum supported version
+                        -->
+                    <release>11</release>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>

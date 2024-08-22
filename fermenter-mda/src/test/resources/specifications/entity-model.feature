@@ -17,7 +17,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with parent "<parent>" and inheritance strategy "<inheritanceStrategy>"
 
-    Examples: 
+    Examples:
       | name | package            | parent | inheritanceStrategy |
       | Foo  | test.entity.parent | Alpha  | mapped-superclass   |
       | Bar  | test.entity.parent | Beta   | mapped-superclass   |
@@ -28,7 +28,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with parent "<parent>" and inheritance strategy "<expectedInheritanceStrategy>"
 
-    Examples: 
+    Examples:
       | name | package            | parent | inheritanceStrategy | expectedInheritanceStrategy |
       | Foo  | test.entity.parent | Alpha  | MAPPED-superCLASS   | mapped-superclass           |
       | Bar  | test.entity.parent | Beta   |                     | mapped-superclass           |
@@ -38,7 +38,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with table "<table>"
 
-    Examples: 
+    Examples:
       | name | package         | table |
       | Foo  | test.entity     | FOO   |
       | Bar  | test.entity.alt | BAR   |
@@ -48,7 +48,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with a lock strategy of "<lockStrategy>"
 
-    Examples: 
+    Examples:
       | name | package         | lockStrategy |
       | Foo  | test.entity     | optimistic   |
       | Bar  | test.entity.alt | optimistic   |
@@ -58,7 +58,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with a lock strategy of "<expectedLockStrategy>"
 
-    Examples: 
+    Examples:
       | name | package           | lockStrategy | expectedLockStrategy |
       | Foo  | test.lock.default |              | optimistic           |
       | Bar  | test.default.alt  |              | optimistic           |
@@ -68,7 +68,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with a transient flag of "<transient>"
 
-    Examples: 
+    Examples:
       | name | package         | transient |
       | Foo  | test.entity     | true      |
       | Bar  | test.entity.alt | false     |
@@ -78,13 +78,13 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with a transient flag of "<expectedTransient>"
 
-    Examples: 
+    Examples:
       | name | package         | transient | expectedTransient |
       | Foo  | test.entity     |           | false             |
       | Bar  | test.entity.alt |           | false             |
 
   Scenario Outline: specify an identifier via a JSON metamodel
-    Given an entity named "<name>" in "<package>" with an indentifier:
+    Given an entity named "<name>" in "<package>" with an identifier:
       | name        | documentation   | type   | column   |
       | <fieldName> | <documentation> | <type> | <column> |
     When entities are read
@@ -92,7 +92,7 @@ Feature: Specify entities for use in model-driven file generation
       | name        | documentation   | type   | column   |
       | <fieldName> | <documentation> | <type> | <column> |
 
-    Examples: 
+    Examples:
       | name | package         | fieldName | documentation      | type    | column |
       | Foo  | test.entity     | FooId     | Primary key of Foo | string  | FOO_ID |
       | Bar  | test.entity.alt | BarId     | Primary key of Bar | integer | BAR_ID |
@@ -106,7 +106,7 @@ Feature: Specify entities for use in model-driven file generation
       | name        | documentation   | type   | column   | label   |
       | <fieldName> | <documentation> | <type> | <column> | <label> |
 
-    Examples: 
+    Examples:
       | name | package         | fieldName | documentation  | type    | column  | label   |
       | Bar  | test.entity.alt | summary   | Summary of Bar | string  | SUMMARY | Summary |
       | Blah | test.entity.alt | stuff     | Stuff of Blah  | integer | STUFF   |         |
@@ -120,7 +120,7 @@ Feature: Specify entities for use in model-driven file generation
       | name        | transientValue |
       | <fieldName> | <transient>    |
 
-    Examples: 
+    Examples:
       | name | package         | fieldName            | transient |
       | Bar  | test.entity.alt | isPersistentField    | true      |
       | Blah | test.entity.alt | isNotPersistentField | false     |
@@ -133,7 +133,7 @@ Feature: Specify entities for use in model-driven file generation
       | name        | transientValue |
       | <fieldName> | <transient>    |
 
-    Examples: 
+    Examples:
       | name | package         | fieldName            | transient |
       | Bar  | test.entity.alt | doNotPersistMe       | false     |
       | Blah | test.entity.alt | isNotPersistentField | false     |
@@ -147,14 +147,14 @@ Feature: Specify entities for use in model-driven file generation
       | name        | documentation   | type   | fieldPackage   | column   | required |
       | <fieldName> | <documentation> | <type> | <fieldPackage> | <column> | required |
 
-    Examples: 
+    Examples:
       | name | package         | fieldName | documentation  | type     | fieldPackage | column  | required |
       | Foo  | test.entity     | name      | Name of Foo    | SomeEnum | test.enum    | NAME    | true     |
       | Bar  | test.entity.alt | summary   | Summary of Bar | Enum1    | test.package | SUMMARY | false    |
       | Blah | test.entity.alt | stuff     | Stuff of Blah  | Enum3    | test.foo.bar | STUFF   | true     |
 
   Scenario Outline: specify a reference with via a JSON metamodel
-    Given an entity named "<type>" in "<referencePackage>" with an indentifier:
+    Given an entity named "<type>" in "<referencePackage>" with an identifier:
       | name | column |
       | id   | FOO_ID |
     And an entity named "<name>" in "<package>" with a reference:
@@ -165,13 +165,13 @@ Feature: Specify entities for use in model-driven file generation
       | referenceName   | documentation   | type   | referencePackage   | localColumn   | required   |
       | <referenceName> | <documentation> | <type> | <referencePackage> | <localColumn> | <required> |
 
-    Examples: 
+    Examples:
       | name | package         | referenceName  | documentation | type  | referencePackage | localColumn | required |
       | Foo  | test.entity     | AlphaReference | M-1 to Alpha  | Alpha | greek.stuff      | ALPHA_ID    | true     |
       | Bar  | test.entity.alt | BetaReference  | M-1 to Beta   | Beta  | greek.stuff      | BETA_ID     | false    |
 
   Scenario Outline: specify a relation with via a JSON metamodel
-    Given an entity named "<type>" in "<relationPackage>" with an indentifier:
+    Given an entity named "<type>" in "<relationPackage>" with an identifier:
       | name | column |
       | id   | BAR_ID |
     And an entity named "<name>" in "<package>" with a relation:
@@ -182,7 +182,7 @@ Feature: Specify entities for use in model-driven file generation
       | documentation   | type   | relationPackage   | fetchMode   | multiplicity   |
       | <documentation> | <type> | <relationPackage> | <fetchMode> | <multiplicity> |
 
-    Examples: 
+    Examples:
       | name | package         | documentation | type  | relationPackage | fetchMode | multiplicity |
       | Foo  | test.entity     | 1-M to Delta  | Delta | greek.stuff     | eager     | 1-M          |
       | Bar  | test.entity.alt | 1-M to Gamma  | Gamma | greek.stuff     | lazy      | 1-1          |
@@ -193,7 +193,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with the following relation that has one-to-many multiplicity
 
-    Examples: 
+    Examples:
       | name | package         |
       | Foo  | test.entity     |
       | Bar  | test.entity.alt |
@@ -203,7 +203,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then the tracker reports that errors were encountered
 
-    Examples: 
+    Examples:
       | name | package         | invalidMultiplicity |
       | Foo  | test.entity     | lots                |
       | Bar  | test.entity.alt | a-bunch             |
@@ -213,7 +213,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then an entity metamodel instance is returned for the name "<name>" in "<package>" with the following relation that has eager fetch mode
 
-    Examples: 
+    Examples:
       | name | package         |
       | Foo  | test.entity     |
       | Bar  | test.entity.alt |
@@ -223,7 +223,7 @@ Feature: Specify entities for use in model-driven file generation
     When entities are read
     Then the tracker reports that errors were encountered
 
-    Examples: 
+    Examples:
       | name | package         | invalidFetchMode  |
       | Foo  | test.entity     | whenYouFeelLikeIt |
       | Bar  | test.entity.alt | eagerly           |

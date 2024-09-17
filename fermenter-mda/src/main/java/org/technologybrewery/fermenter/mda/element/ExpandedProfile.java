@@ -112,6 +112,10 @@ public class ExpandedProfile implements Comparable<ExpandedProfile> {
                     messageTracker.addWarningMessage("Profile '" + getName() + "' cannot include itself!");
 
                 } else {
+                    ExpandedProfile profile = profiles.get(nameOnlyProfile.getName());
+                    if (profile != null) {
+                        addReferencedProfile(profile);
+                    }
                     transferTargetsFromProfile(profileName, profiles, targets);
 
                 }

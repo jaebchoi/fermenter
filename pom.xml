@@ -57,6 +57,7 @@
     <modules>
         <module>test-primer</module>
         <module>fermenter-mda</module>
+        <module>fermenter-mda-test-utils</module>
     </modules>
 
     <properties>

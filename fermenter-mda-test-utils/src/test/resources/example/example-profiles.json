@@ -1,0 +1,26 @@
+[
+  {
+    "name": "example-only-targets",
+    "targetReferences": [
+        {
+          "name": "exampleTarget1"
+        },
+        {
+          "name": "exampleTarget2"
+        }
+    ]
+  },
+  {
+    "name": "example-only-profiles",
+    "profileReferences": [
+      {
+        "name": "example-deprecated"
+      }
+    ]
+  },
+  {
+    "name": "example-deprecated",
+    "deprecated": "true",
+    "warningMessage": "This profile is deprecated, please use other profiles instead."
+  }
+]

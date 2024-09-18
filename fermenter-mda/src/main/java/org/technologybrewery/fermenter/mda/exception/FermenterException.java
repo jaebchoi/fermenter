@@ -10,7 +10,7 @@ public class FermenterException extends RuntimeException {
     /**
      * {@inheritDoc}
      */
-    public FermenterException() {
+     public FermenterException() {
         super();
     }
 

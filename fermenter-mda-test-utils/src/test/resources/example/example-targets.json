@@ -1,0 +1,26 @@
+[
+  {
+    "name": "exampleTarget1",
+    "templateName": "example/templates/example-template1.json.vm",
+    "outputFile": "example-template1.json",
+    "generator": "org.technologybrewery.fermenter.mda.test.utils.tests.ExampleGenerator",
+    "metadataContext": "targeted",
+    "overwritable": false
+  },
+  {
+    "name": "exampleTarget2",
+    "templateName": "example/templates/invalid-pom.xml.vm",
+    "outputFile": "${moduleArtifactId}/pom.xml",
+    "generator": "org.technologybrewery.fermenter.mda.test.utils.tests.ExampleGenerator",
+    "metadataContext": "targeted",
+    "overwritable": false
+  },
+  {
+    "name": "exampleTarget3",
+    "templateName": "example/templates/test.java.vm",
+    "outputFile": "${moduleArtifactId}/test.java.vm",
+    "generator": "org.technologybrewery.fermenter.mda.test.utils.tests.InvalidGenerator",
+    "metadataContext": "targeted",
+    "overwritable": false
+  }
+]
